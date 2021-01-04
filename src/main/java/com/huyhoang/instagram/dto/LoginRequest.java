@@ -1,12 +1,9 @@
 package com.huyhoang.instagram.dto;
-import javax.validation.constraints.NotBlank;
 
 public class LoginRequest {
 
-    @NotBlank(message = "Username must not be empty")
     private String username;
 
-    @NotBlank(message = "Password must not be empty")
     private String password;
 
     public LoginRequest() {

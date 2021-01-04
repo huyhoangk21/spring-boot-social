@@ -41,11 +41,12 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ResponseBody
     @ExceptionHandler(ResourceAlreadyExistsException.class)
-    protected ResponseEntity<Object> handleUsernameAlreadyExists(ResourceAlreadyExistsException ex) {
+    protected ResponseEntity<ApiError> handleUsernameAlreadyExists(ResourceAlreadyExistsException ex) {
 
         Map<String, String> errors = ex.getErrors();
 
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, errors);
         return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     }
+
 }

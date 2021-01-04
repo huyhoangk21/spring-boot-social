@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/api/v1/auth")
@@ -39,6 +37,4 @@ public class AuthController {
                 Collections.singletonList(user));
         return new ResponseEntity<> (response, HttpStatus.CREATED);
     }
-
-
 }

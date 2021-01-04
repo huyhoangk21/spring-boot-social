@@ -1,9 +1,13 @@
 package com.huyhoang.instagram.config;
 
 
+import com.huyhoang.instagram.exception.AuthEntryPointExceptionHandler;
+import com.huyhoang.instagram.jwt.JwtAuthenticationFilter;
+import com.huyhoang.instagram.jwt.JwtUsernameAndPasswordFilter;
 import com.huyhoang.instagram.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,13 +30,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors()
-                .and()
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .anyRequest().permitAll();
+                .antMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .addFilter(new JwtUsernameAndPasswordFilter(authenticationManager()))
+                .addFilterBefore(new JwtAuthenticationFilter(), JwtUsernameAndPasswordFilter.class)
+                .exceptionHandling().authenticationEntryPoint(new AuthEntryPointExceptionHandler());
     }
 
     @Override
@@ -40,7 +47,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth
                 .userDetailsService(username -> userRepository
                 .findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found")));
+                .orElseThrow(() -> new UsernameNotFoundException("Username not found") {
+                }))
+                .passwordEncoder(passwordEncoder());
     }
 
     @Bean
