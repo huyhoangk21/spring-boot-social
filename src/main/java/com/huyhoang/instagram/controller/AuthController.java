@@ -1,5 +1,6 @@
 package com.huyhoang.instagram.controller;
 
+import com.huyhoang.instagram.dto.ApiResponse;
 import com.huyhoang.instagram.dto.SignupRequest;
 import com.huyhoang.instagram.model.User;
 import com.huyhoang.instagram.service.AuthService;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "/api/v1/auth")
@@ -28,9 +32,12 @@ public class AuthController {
     }
 
     @PostMapping(path = "/signup")
-    public ResponseEntity<User> signup(@Valid @RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<ApiResponse<User>> signup(@Valid @RequestBody SignupRequest signupRequest) {
         User user = authService.signup(signupRequest);
-        return new ResponseEntity<> (user, HttpStatus.CREATED);
+        ApiResponse<User> response = new ApiResponse<>(HttpStatus.CREATED,
+                "Register successful",
+                Collections.singletonList(user));
+        return new ResponseEntity<> (response, HttpStatus.CREATED);
     }
 
 

@@ -9,9 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Service
 public class AuthService {
 
@@ -27,16 +24,18 @@ public class AuthService {
     @Transactional
     public User signup(SignupRequest signupRequest) throws ResourceAlreadyExistsException {
 
-        Map<String, String> errors = new HashMap<>();
+        ResourceAlreadyExistsException ex = new ResourceAlreadyExistsException();
+
         if(userRepository.existsByUsername(signupRequest.getUsername())) {
-            errors.put("username", "Username already exists");
+            ex.addError("username");
         }
 
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            errors.put("email", "Email already exists");
+            ex.addError("email");
         }
-        if (!errors.isEmpty()) {
-            throw new ResourceAlreadyExistsException(errors);
+
+        if (!ex.getErrors().isEmpty()) {
+            throw ex;
         }
 
         User user = new User(signupRequest.getUsername(),

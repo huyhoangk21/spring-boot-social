@@ -2,9 +2,10 @@ package com.huyhoang.instagram.dto;
 
 import org.springframework.http.HttpStatus;
 
+import java.io.Serializable;
 import java.util.Map;
 
-public class ApiError {
+public class ApiError implements Serializable {
 
     private HttpStatus status;
     private Map<String, String> errors;
