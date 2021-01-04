@@ -1,14 +1,16 @@
 package com.huyhoang.instagram.service;
 
 import com.huyhoang.instagram.dto.SignupRequest;
-import com.huyhoang.instagram.exception.EmailAlreadyExistsException;
-import com.huyhoang.instagram.exception.UsernameAlreadyExistsException;
+import com.huyhoang.instagram.exception.ResourceAlreadyExistsException;
 import com.huyhoang.instagram.model.User;
 import com.huyhoang.instagram.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class AuthService {
@@ -23,16 +25,18 @@ public class AuthService {
     }
 
     @Transactional
-    public User signup(SignupRequest signupRequest) {
+    public User signup(SignupRequest signupRequest) throws ResourceAlreadyExistsException {
 
+        Map<String, String> errors = new HashMap<>();
         if(userRepository.existsByUsername(signupRequest.getUsername())) {
-            throw new UsernameAlreadyExistsException(
-                    String.format("Username %s already exists", signupRequest.getUsername()));
+            errors.put("username", "Username already exists");
         }
 
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new EmailAlreadyExistsException(
-                    String.format("Email %s already exists", signupRequest.getEmail()));
+            errors.put("email", "Email already exists");
+        }
+        if (!errors.isEmpty()) {
+            throw new ResourceAlreadyExistsException(errors);
         }
 
         User user = new User(signupRequest.getUsername(),
