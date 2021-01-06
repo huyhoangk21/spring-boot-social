@@ -1,6 +1,5 @@
 package com.huyhoang.instagram.config;
 
-
 import com.huyhoang.instagram.exception.AuthEntryPointExceptionHandler;
 import com.huyhoang.instagram.jwt.JwtAuthenticationFilter;
 import com.huyhoang.instagram.jwt.JwtUsernameAndPasswordFilter;
@@ -21,10 +20,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserRepository userRepository;
+    private final JwtConfig jwtConfig;
 
     @Autowired
-    public SecurityConfig(UserRepository userRepository) {
+    public SecurityConfig(UserRepository userRepository, JwtConfig jwtConfig) {
         this.userRepository = userRepository;
+        this.jwtConfig = jwtConfig;
     }
 
     @Override
@@ -37,8 +38,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .addFilter(new JwtUsernameAndPasswordFilter(authenticationManager()))
-                .addFilterBefore(new JwtAuthenticationFilter(), JwtUsernameAndPasswordFilter.class)
+                .addFilter(new JwtUsernameAndPasswordFilter(authenticationManager(), jwtConfig))
+                .addFilterBefore(new JwtAuthenticationFilter(jwtConfig), JwtUsernameAndPasswordFilter.class)
                 .exceptionHandling().authenticationEntryPoint(new AuthEntryPointExceptionHandler());
     }
 

@@ -1,7 +1,7 @@
 package com.huyhoang.instagram.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.net.HttpHeaders;
+import com.huyhoang.instagram.config.JwtConfig;
 import com.huyhoang.instagram.dto.LoginRequest;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,10 +22,12 @@ import java.util.Date;
 public class JwtUsernameAndPasswordFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+    private final JwtConfig jwtConfig;
 
     @Autowired
-    public JwtUsernameAndPasswordFilter(AuthenticationManager authenticationManager) {
+    public JwtUsernameAndPasswordFilter(AuthenticationManager authenticationManager, JwtConfig jwtConfig) {
         this.authenticationManager = authenticationManager;
+        this.jwtConfig = jwtConfig;
         setFilterProcessesUrl("/api/v1/auth/login");
     }
 
@@ -55,10 +57,10 @@ public class JwtUsernameAndPasswordFilter extends UsernamePasswordAuthentication
         String token = Jwts.builder()
                 .setSubject(authResult.getName())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(SignatureAlgorithm.HS256, "askdjfhkaldshfkshj")
+                .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getExpiry()))
+                .signWith(SignatureAlgorithm.HS256, jwtConfig.getSecretKey())
                 .compact();
 
-        response.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+        response.addHeader(jwtConfig.getAuthorizationHeader(), jwtConfig.getPrefix() + " " + token);
     }
 }

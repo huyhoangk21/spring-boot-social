@@ -2,9 +2,11 @@ package com.huyhoang.instagram.jwt;
 
 import com.google.common.base.Strings;
 import com.google.common.net.HttpHeaders;
+import com.huyhoang.instagram.config.JwtConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,12 +21,18 @@ import java.util.HashSet;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private final JwtConfig jwtConfig;
+
+    public JwtAuthenticationFilter(JwtConfig jwtConfig) {
+        this.jwtConfig = jwtConfig;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String header = request.getHeader(jwtConfig.getAuthorizationHeader());
 
         if (Strings.isNullOrEmpty(header) || !header.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -36,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             Claims claimBody = Jwts
                     .parser()
-                    .setSigningKey("askdjfhkaldshfkshj")
+                    .setSigningKey(jwtConfig.getSecretKey())
                     .parseClaimsJws(token)
                     .getBody();
 

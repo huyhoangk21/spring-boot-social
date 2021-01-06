@@ -15,6 +15,7 @@ public class User extends Auditable implements UserDetails, Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "username", unique = true, nullable = false)
@@ -27,6 +28,10 @@ public class User extends Auditable implements UserDetails, Serializable {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "profile_id", referencedColumnName = "id")
+    private Profile profile;
+
     public User() {
 
     }
@@ -35,6 +40,7 @@ public class User extends Auditable implements UserDetails, Serializable {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.profile = new Profile(this);
     }
 
     @JsonIgnore
@@ -75,6 +81,14 @@ public class User extends Auditable implements UserDetails, Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
     }
 
     @JsonIgnore
